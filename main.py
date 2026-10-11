@@ -1,6 +1,7 @@
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+import testpytdentic
 app= FastAPI()
 
 books = [{
@@ -15,14 +16,26 @@ books = [{
     }
 ]
 
-
+users=[]
 
 class CreateBook(BaseModel):
     title: str
     author: str
 
 
-@app.post("/books",tags=["Add book"],summary="Create new book")
+@app.post("/users",tags=["Users"],summary="Create users")
+def create_user(user: testpytdentic.UserSchema):
+    users.append(user)
+    return {'msg': 'successful'}
+
+
+@app.get("/users",tags=["Users"],summary="Get users")
+def get_users():
+    return users
+
+
+
+@app.post("/books",tags=["books"],summary="Create new book")
 def create_books(book: CreateBook):
     books.append({"title": book.title,
                   "author": book.author,
@@ -40,7 +53,7 @@ def read_books():
 
 @app.get(
     "/books/{book_id}",
-    tags=["book"],
+    tags=["books"],
     summary="Get book by id",
 )
 def get_book(book_id: int):
@@ -49,6 +62,27 @@ def get_book(book_id: int):
             return book
     else:
         raise HTTPException(status_code=404, detail="Book not found")
+
+class AuthorSchema(BaseModel):
+    id: int
+    first_name: str
+    last_name: str
+    age:str
+    sex:bool
+
+
+authors=[]
+@app.get("/authors",tags=["authors"],summary="Get authors")
+def get_authors():
+    return authors
+
+@app.post('/authors',tags=["authors"],summary="Create new author")
+def create_author(author: AuthorSchema):
+    authors.append(author)
+    return {'msg': 'successful'}
+
+
+
 
 
 if __name__ == "__main__":
